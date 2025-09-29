@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIET Smart Attendance - Login</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h1><i class="fas fa-graduation-cap icon-glow"></i> <span class="siet-text">SIET</span> <span class="smart-text">Smart Attendance</span></h1>
+            <div class="form-toggle">
+                <button id="loginToggle" class="toggle-btn active">Login</button>
+                <button id="registerToggle" class="toggle-btn">Register</button>
+            </div>
+
+            <form id="loginForm" class="auth-form active">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <div class="role-selection">
+                    <label><input type="radio" name="role" value="student" checked> <i class="fas fa-user-graduate"></i> Student</label>
+                    <label><input type="radio" name="role" value="teacher"> <i class="fas fa-chalkboard-teacher"></i> Teacher</label>
+                </div>
+                <button type="submit"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </form>
+
+            <form id="registerForm" class="auth-form">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="regUsername" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="regName" placeholder="Full Name" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="regEmail" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-book"></i>
+                    <select id="regCourse" required>
+                        <option value="">Select Course</option>
+                        <option value="CS101">💻 Computer Science 101</option>
+                        <option value="MATH201">📊 Mathematics 201</option>
+                        <option value="PHY301">⚛️ Physics 301</option>
+                        <option value="ENG101">📚 English 101</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="regPassword" placeholder="Password" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="regConfirmPassword" placeholder="Confirm Password" required>
+                </div>
+                <button type="submit"><i class="fas fa-user-plus"></i> Register</button>
+            </form>
+            <div class="demo-credentials">
+                <p><strong>Demo Login:</strong></p>
+                <p>Student: john123 / pass123</p>
+                <p>Teacher: admin / admin123</p>
+            </div>
+        </div>
+    </div>
+    <script src="login.js"></script>
+</body>
+</html>

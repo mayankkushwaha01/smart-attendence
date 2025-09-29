@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIET Smart Attendance System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <script>
+        // Check if user is logged in
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser || currentUser.role !== 'teacher') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <div class="container">
+        <header>
+            <div>
+                <h1><i class="fas fa-graduation-cap icon-glow"></i> <span class="siet-text">SIET</span> <span class="smart-text">Smart Attendance</span></h1>
+                <nav>
+                    <button id="studentBtn" class="nav-btn active"><i class="fas fa-qrcode"></i> QR Generator</button>
+                    <button id="teacherBtn" class="nav-btn"><i class="fas fa-users"></i> Present Students</button>
+                </nav>
+            </div>
+            <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </header>
+
+        <!-- QR Generator Section -->
+        <div id="studentSection" class="section active">
+            <h2><i class="fas fa-qrcode"></i> Generate QR Code</h2>
+            <div class="qr-generator">
+                <div class="qr-form">
+                    <div class="input-group">
+                        <i class="fas fa-book"></i>
+                        <input type="text" id="qrCourse" placeholder="Enter Course Name" required>
+                    </div>
+                    <button id="generateQR"><i class="fas fa-magic"></i> Generate QR Code</button>
+                </div>
+                <div id="qrDisplay" class="qr-display">
+                    <div id="qrcode"></div>
+                    <p id="qrText"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Present Students Section -->
+        <div id="teacherSection" class="section">
+            <h2><i class="fas fa-users"></i> Present Students</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <i class="fas fa-filter"></i>
+                    <select id="filterCourse">
+                        <option value="">All Courses</option>
+                        <option value="CS101">💻 Computer Science 101</option>
+                        <option value="MATH201">📊 Mathematics 201</option>
+                        <option value="PHY301">⚛️ Physics 301</option>
+                        <option value="ENG101">📚 English 101</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <i class="fas fa-calendar"></i>
+                    <input type="date" id="filterDate">
+                </div>
+                <button id="exportBtn"><i class="fas fa-download"></i> Export CSV</button>
+            </div>
+            <div id="attendanceList"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

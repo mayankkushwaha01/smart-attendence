@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIET Student Dashboard</title>
+    <link rel="stylesheet" href="student.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-user-graduate icon-glow"></i> <span class="siet-text">SIET</span> <span class="smart-text">Student Dashboard</span></h1>
+            <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </header>
+
+        <nav class="tab-nav">
+            <button id="profileBtn" class="tab-btn active"><i class="fas fa-user"></i> Profile</button>
+            <button id="scannerBtn" class="tab-btn"><i class="fas fa-qrcode"></i> Scanner</button>
+        </nav>
+
+        <!-- Profile Section -->
+        <div id="profileSection" class="section active">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h2 id="studentName">Loading...</h2>
+                        <p id="studentId">Loading...</p>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-book"></i>
+                        <h3>Course</h3>
+                        <p id="studentCourse">Loading...</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <h3>Total Classes</h3>
+                        <p id="totalClasses">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Present</h3>
+                        <p id="presentCount">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-percentage"></i>
+                        <h3>Attendance</h3>
+                        <p id="attendancePercentage">0%</p>
+                    </div>
+                </div>
+
+                <div class="attendance-chart">
+                    <h3>Recent Attendance</h3>
+                    <div id="attendanceHistory"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scanner Section -->
+        <div id="scannerSection" class="section">
+            <div class="scanner-container">
+                <h2><i class="fas fa-qrcode"></i> QR Code Scanner</h2>
+                <div class="scanner-box">
+                    <video id="video" autoplay></video>
+                    <div class="scanner-overlay">
+                        <div class="scanner-line"></div>
+                    </div>
+                </div>
+                <div class="scanner-controls">
+                    <button id="startScan" class="scan-btn"><i class="fas fa-play"></i> Start Scan</button>
+                    <button id="stopScan" class="scan-btn stop"><i class="fas fa-stop"></i> Stop Scan</button>
+                </div>
+                <div id="scanResult" class="scan-result"></div>
+                
+                <!-- Manual Entry Fallback -->
+                <div class="manual-entry">
+                    <h3>Manual Entry</h3>
+                    <form id="manualForm">
+                        <input type="text" id="classCode" placeholder="Enter Class Code" required>
+                        <button type="submit"><i class="fas fa-check"></i> Mark Present</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="student.js"></script>
+</body>
+</html>
