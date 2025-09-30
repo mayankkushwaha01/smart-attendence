@@ -10,12 +10,18 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-user-graduate icon-glow"></i> <span class="siet-text">SIET</span> <span class="smart-text">Student Dashboard</span></h1>
+            <div class="header-content">
+                <div class="header-image">
+                    <img src="https://img.freepik.com/free-vector/students-concept-illustration_114360-3143.jpg" alt="Students">
+                </div>
+                <h1><i class="fas fa-user-graduate icon-glow"></i> <span class="siet-text">SIET</span> <span class="smart-text">Student Dashboard</span></h1>
+            </div>
             <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </header>
 
         <nav class="tab-nav">
             <button id="profileBtn" class="tab-btn active"><i class="fas fa-user"></i> Profile</button>
+            <button id="editBtn" class="tab-btn"><i class="fas fa-edit"></i> Edit Profile</button>
             <button id="scannerBtn" class="tab-btn"><i class="fas fa-qrcode"></i> Scanner</button>
         </nav>
 
@@ -62,12 +68,62 @@
             </div>
         </div>
 
+        <!-- Edit Profile Section -->
+        <div id="editSection" class="section">
+            <div class="edit-profile-card">
+                <h2><i class="fas fa-edit"></i> Edit Profile</h2>
+                <form id="editProfileForm">
+                    <div class="form-row">
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="editName" placeholder="Full Name" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-id-card"></i>
+                            <input type="text" id="editStudentId" placeholder="Student ID" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="editEmail" placeholder="Email Address" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="editPhone" placeholder="Phone Number">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <i class="fas fa-book"></i>
+                            <select id="editCourse" required>
+                                <option value="">Select Course</option>
+                                <option value="BCA">💻 BCA (Bachelor of Computer Applications)</option>
+                                <option value="BBA">💼 BBA (Bachelor of Business Administration)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-calendar"></i>
+                            <input type="date" id="editDOB" placeholder="Date of Birth">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <textarea id="editAddress" placeholder="Address" rows="3"></textarea>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="save-btn"><i class="fas fa-save"></i> Save Changes</button>
+                        <button type="button" id="cancelEdit" class="cancel-btn"><i class="fas fa-times"></i> Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Scanner Section -->
         <div id="scannerSection" class="section">
             <div class="scanner-container">
                 <h2><i class="fas fa-qrcode"></i> QR Code Scanner</h2>
-                <div class="scanner-box">
-                    <video id="video" autoplay></video>
+                <div id="scanner-box" class="scanner-box">
                     <div class="scanner-overlay">
                         <div class="scanner-line"></div>
                     </div>
@@ -90,7 +146,32 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, push, get, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBJVqOs7xdiLBYkNiVmxfXeH363Hot4Cw",
+            authDomain: "smart-attendence0.firebaseapp.com",
+            databaseURL: "https://smart-attendence0-default-rtdb.firebaseio.com",
+            projectId: "smart-attendence0",
+            storageBucket: "smart-attendence0.firebasestorage.app",
+            messagingSenderId: "424874093065",
+            appId: "1:424874093065:web:b5caf7c52c8c2770f7a6d8"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+        window.firebasePush = push;
+        window.firebaseGet = get;
+        window.firebaseQuery = query;
+        window.firebaseOrderByChild = orderByChild;
+        window.firebaseEqualTo = equalTo;
+    </script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.4/html5-qrcode.min.js"></script>
     <script src="student.js"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 class AttendanceSystem {
     constructor() {
-        this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+        this.attendanceData = [];
         this.initializeEventListeners();
-        this.displayAttendance();
+        this.loadAttendanceData();
     }
 
     initializeEventListeners() {
@@ -119,10 +119,8 @@ class AttendanceSystem {
 
     getCourseFullName(courseCode) {
         const courses = {
-            'CS101': '💻 Computer Science 101',
-            'MATH201': '📊 Mathematics 201',
-            'PHY301': '⚛️ Physics 301',
-            'ENG101': '📚 English 101'
+            'BCA': '💻 BCA (Bachelor of Computer Applications)',
+            'BBA': '💼 BBA (Bachelor of Business Administration)'
         };
         return courses[courseCode] || courseCode;
     }
@@ -179,8 +177,37 @@ class AttendanceSystem {
         setTimeout(() => messageDiv.remove(), 3000);
     }
 
-    saveData() {
+    async saveData() {
+        try {
+            if (window.firebaseDB) {
+                const attendanceRef = window.firebaseRef(window.firebaseDB, 'attendance');
+                await window.firebaseSet(attendanceRef, this.attendanceData);
+            }
+        } catch (error) {
+            console.log('Firebase save failed, using localStorage:', error);
+        }
         localStorage.setItem('attendanceData', JSON.stringify(this.attendanceData));
+    }
+
+    async loadAttendanceData() {
+        try {
+            if (window.firebaseDB) {
+                const attendanceRef = window.firebaseRef(window.firebaseDB, 'attendance');
+                const snapshot = await window.firebaseGet(attendanceRef);
+                const firebaseData = snapshot.val();
+                if (firebaseData && Array.isArray(firebaseData)) {
+                    this.attendanceData = firebaseData;
+                } else {
+                    this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+                }
+            } else {
+                this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+            }
+        } catch (error) {
+            console.log('Firebase load failed, using localStorage:', error);
+            this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+        }
+        this.displayAttendance();
     }
 
     generateQRCode() {

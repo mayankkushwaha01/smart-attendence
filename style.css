@@ -11,6 +11,8 @@ body {
     min-height: 100vh;
     padding: 20px;
     animation: backgroundShift 8s ease-in-out infinite alternate;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
 }
 
 @keyframes backgroundShift {
@@ -40,13 +42,46 @@ body {
 header {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
-    padding: 40px 30px;
+    padding: 30px;
     text-align: center;
     position: relative;
     overflow: hidden;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.header-image {
+    animation: teacherFloat 4s ease-in-out infinite;
+}
+
+.header-image img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform 0.3s;
+}
+
+.header-image img:hover {
+    transform: scale(1.1);
+}
+
+@keyframes teacherFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+.header-text {
+    flex: 1;
 }
 
 header::before {
@@ -66,8 +101,8 @@ header::before {
 }
 
 header h1 {
-    margin-bottom: 25px;
-    font-size: 3.2em;
+    margin-bottom: 20px;
+    font-size: 2.8em;
     font-weight: 800;
     text-shadow: 
         2px 2px 0px #357abd,
@@ -534,27 +569,44 @@ nav {
 }
 
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
     .container {
-        margin: 10px;
-        border-radius: 20px;
+        margin: 0;
+        border-radius: 15px;
+        max-width: 100%;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .header-image img {
+        width: 80px;
+        height: 80px;
     }
     
     header {
-        padding: 25px 20px;
+        padding: 20px 15px;
         flex-direction: column;
-        gap: 20px;
+        gap: 15px;
     }
     
     header h1 {
-        font-size: 2.5em;
+        font-size: 1.8em;
     }
     
     .section {
-        padding: 30px 20px;
+        padding: 20px 15px;
     }
     
     .controls {
         flex-direction: column;
+        gap: 10px;
     }
     
     .control-group {
@@ -564,11 +616,16 @@ nav {
     .attendance-record {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
+        gap: 10px;
+        padding: 15px;
     }
     
     .nav-btn {
-        padding: 12px 30px;
-        font-size: 14px;
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+    
+    .qr-display {
+        padding: 20px;
     }
 }

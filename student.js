@@ -2,7 +2,7 @@ class StudentDashboard {
     constructor() {
         this.currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
         this.html5QrCode = null;
-        this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+        this.attendanceData = [];
         
         if (!this.currentUser || this.currentUser.role !== 'student') {
             window.location.href = 'login.html';
@@ -11,12 +11,13 @@ class StudentDashboard {
         
         this.initializeEventListeners();
         this.loadStudentData();
-        this.calculateAttendance();
+        this.loadAttendanceData();
     }
 
     initializeEventListeners() {
         // Navigation
         document.getElementById('profileBtn').addEventListener('click', () => this.showSection('profile'));
+        document.getElementById('editBtn').addEventListener('click', () => this.showSection('edit'));
         document.getElementById('scannerBtn').addEventListener('click', () => this.showSection('scanner'));
         
         // Logout
@@ -28,6 +29,10 @@ class StudentDashboard {
         
         // Manual entry
         document.getElementById('manualForm').addEventListener('submit', (e) => this.handleManualEntry(e));
+        
+        // Edit profile
+        document.getElementById('editProfileForm').addEventListener('submit', (e) => this.saveProfile(e));
+        document.getElementById('cancelEdit').addEventListener('click', () => this.showSection('profile'));
     }
 
     showSection(section) {
@@ -38,6 +43,11 @@ class StudentDashboard {
         // Update sections
         document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
         document.getElementById(section + 'Section').classList.add('active');
+        
+        // Load edit form if switching to edit section
+        if (section === 'edit') {
+            this.loadEditForm();
+        }
     }
 
     loadStudentData() {
@@ -48,10 +58,8 @@ class StudentDashboard {
 
     getCourseFullName(courseCode) {
         const courses = {
-            'CS101': '💻 Computer Science 101',
-            'MATH201': '📊 Mathematics 201',
-            'PHY301': '⚛️ Physics 301',
-            'ENG101': '📚 English 101'
+            'BCA': '💻 BCA (Bachelor of Computer Applications)',
+            'BBA': '💼 BBA (Bachelor of Business Administration)'
         };
         return courses[courseCode] || courseCode;
     }
@@ -221,7 +229,9 @@ class StudentDashboard {
         };
 
         this.attendanceData.push(attendanceRecord);
-        localStorage.setItem('attendanceData', JSON.stringify(this.attendanceData));
+        
+        // Save to Firebase
+        this.saveAttendanceData();
         
         this.showScanResult(`Attendance marked successfully for ${this.getCourseFullName(course)}!`, 'success');
         this.calculateAttendance();
@@ -236,6 +246,116 @@ class StudentDashboard {
             resultDiv.textContent = '';
             resultDiv.className = 'scan-result';
         }, 5000);
+    }
+
+    loadEditForm() {
+        document.getElementById('editName').value = this.currentUser.name || '';
+        document.getElementById('editStudentId').value = this.currentUser.id || '';
+        document.getElementById('editEmail').value = this.currentUser.email || '';
+        document.getElementById('editPhone').value = this.currentUser.phone || '';
+        document.getElementById('editCourse').value = this.currentUser.course || '';
+        document.getElementById('editDOB').value = this.currentUser.dob || '';
+        document.getElementById('editAddress').value = this.currentUser.address || '';
+    }
+
+    saveProfile(e) {
+        e.preventDefault();
+        
+        const updatedUser = {
+            ...this.currentUser,
+            name: document.getElementById('editName').value,
+            email: document.getElementById('editEmail').value,
+            phone: document.getElementById('editPhone').value,
+            course: document.getElementById('editCourse').value,
+            dob: document.getElementById('editDOB').value,
+            address: document.getElementById('editAddress').value
+        };
+
+        // Update session storage
+        sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        this.currentUser = updatedUser;
+        
+        // Update registered users if this is a registered user
+        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+        const userIndex = registeredUsers.findIndex(u => u.username === this.currentUser.username);
+        if (userIndex !== -1) {
+            registeredUsers[userIndex] = updatedUser;
+            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+        }
+
+        // Update profile display
+        this.loadStudentData();
+        
+        // Show success message
+        this.showMessage('Profile updated successfully!', 'success');
+        
+        // Switch back to profile tab
+        setTimeout(() => {
+            this.showSection('profile');
+        }, 1500);
+    }
+
+    showMessage(message, type) {
+        const existingMessage = document.querySelector('.profile-message');
+        if (existingMessage) existingMessage.remove();
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `profile-message ${type}`;
+        messageDiv.textContent = message;
+        messageDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.5s ease-out;
+        `;
+        
+        if (type === 'success') {
+            messageDiv.style.background = 'linear-gradient(135deg, #d4edda, #c3e6cb)';
+            messageDiv.style.color = '#155724';
+        } else {
+            messageDiv.style.background = 'linear-gradient(135deg, #f8d7da, #f5c6cb)';
+            messageDiv.style.color = '#721c24';
+        }
+        
+        document.body.appendChild(messageDiv);
+        setTimeout(() => messageDiv.remove(), 3000);
+    }
+
+    async saveAttendanceData() {
+        try {
+            if (window.firebaseDB) {
+                const attendanceRef = window.firebaseRef(window.firebaseDB, 'attendance');
+                await window.firebaseSet(attendanceRef, this.attendanceData);
+            }
+        } catch (error) {
+            console.log('Firebase save failed, using localStorage:', error);
+        }
+        localStorage.setItem('attendanceData', JSON.stringify(this.attendanceData));
+    }
+
+    async loadAttendanceData() {
+        try {
+            if (window.firebaseDB) {
+                const attendanceRef = window.firebaseRef(window.firebaseDB, 'attendance');
+                const snapshot = await window.firebaseGet(attendanceRef);
+                const firebaseData = snapshot.val();
+                if (firebaseData && Array.isArray(firebaseData)) {
+                    this.attendanceData = firebaseData;
+                } else {
+                    this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+                }
+            } else {
+                this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+            }
+        } catch (error) {
+            console.log('Firebase load failed, using localStorage:', error);
+            this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+        }
+        this.calculateAttendance();
     }
 
     logout() {

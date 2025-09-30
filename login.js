@@ -1,7 +1,7 @@
 class LoginSystem {
     constructor() {
         this.users = {
-            student: { username: 'john123', password: 'pass123', name: 'John Smith', id: 'ST001', course: 'CS101' },
+            student: { username: 'john123', password: 'pass123', name: 'John Smith', id: 'ST001', course: 'BCA' },
             teacher: { username: 'admin', password: 'admin123', name: 'Dr. Johnson' }
         };
         this.registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
@@ -25,7 +25,7 @@ class LoginSystem {
         document.getElementById(type + 'Form').classList.add('active');
     }
 
-    handleLogin(e) {
+    async handleLogin(e) {
         e.preventDefault();
         
         const username = document.getElementById('username').value;
@@ -43,13 +43,31 @@ class LoginSystem {
             return;
         }
 
-        // Student login - check registered users first
+        // Student login
         if (role === 'student') {
-            const registeredUser = this.registeredUsers.find(u => u.username === username && u.password === password);
-            if (registeredUser) {
+            let user = null;
+            
+            // Try Firebase first
+            try {
+                if (window.firebaseDB && window.firebaseRef && window.firebaseGet) {
+                    const usersRef = window.firebaseRef(window.firebaseDB, 'users');
+                    const snapshot = await window.firebaseGet(usersRef);
+                    const users = snapshot.val() || {};
+                    user = Object.values(users).find(u => u.username === username && u.password === password);
+                }
+            } catch (error) {
+                console.log('Firebase login failed, trying localStorage:', error);
+            }
+            
+            // Fallback to localStorage
+            if (!user) {
+                user = this.registeredUsers.find(u => u.username === username && u.password === password);
+            }
+            
+            if (user) {
                 sessionStorage.setItem('currentUser', JSON.stringify({
                     role: 'student',
-                    ...registeredUser
+                    ...user
                 }));
                 window.location.href = 'student-dashboard.html';
                 return;
@@ -62,7 +80,7 @@ class LoginSystem {
                     username: 'john123',
                     name: 'John Smith',
                     id: 'ST001',
-                    course: 'CS101'
+                    course: 'BCA'
                 }));
                 window.location.href = 'student-dashboard.html';
                 return;
@@ -72,7 +90,7 @@ class LoginSystem {
         this.showError('Invalid username or password!', 'login');
     }
 
-    handleRegister(e) {
+    async handleRegister(e) {
         e.preventDefault();
         
         const username = document.getElementById('regUsername').value;
@@ -93,7 +111,7 @@ class LoginSystem {
             return;
         }
 
-        // Check if username exists
+        // Check if username exists locally first
         if (this.registeredUsers.some(u => u.username === username) || username === 'john123') {
             this.showError('Username already exists!', 'register');
             return;
@@ -109,9 +127,22 @@ class LoginSystem {
             email,
             course,
             password,
-            id: studentId
+            id: studentId,
+            role: 'student',
+            registeredAt: new Date().toISOString()
         };
 
+        try {
+            // Try to save to Firebase if available
+            if (window.firebaseDB && window.firebaseRef && window.firebasePush) {
+                const usersRef = window.firebaseRef(window.firebaseDB, 'users');
+                await window.firebasePush(usersRef, newUser);
+            }
+        } catch (error) {
+            console.log('Firebase save failed, using localStorage:', error);
+        }
+
+        // Always save to localStorage as backup
         this.registeredUsers.push(newUser);
         localStorage.setItem('registeredUsers', JSON.stringify(this.registeredUsers));
 

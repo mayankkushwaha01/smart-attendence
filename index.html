@@ -17,12 +17,17 @@
     </script>
     <div class="container">
         <header>
-            <div>
-                <h1><i class="fas fa-graduation-cap icon-glow"></i> <span class="siet-text">SIET</span> <span class="smart-text">Smart Attendance</span></h1>
-                <nav>
-                    <button id="studentBtn" class="nav-btn active"><i class="fas fa-qrcode"></i> QR Generator</button>
-                    <button id="teacherBtn" class="nav-btn"><i class="fas fa-users"></i> Present Students</button>
-                </nav>
+            <div class="header-content">
+                <div class="header-image">
+                    <img src="https://img.freepik.com/free-vector/teacher-concept-illustration_114360-1708.jpg" alt="Teacher">
+                </div>
+                <div class="header-text">
+                    <h1><i class="fas fa-graduation-cap icon-glow"></i> <span class="siet-text">SIET</span> <span class="smart-text">Smart Attendance</span></h1>
+                    <nav>
+                        <button id="studentBtn" class="nav-btn active"><i class="fas fa-qrcode"></i> QR Generator</button>
+                        <button id="teacherBtn" class="nav-btn"><i class="fas fa-users"></i> Present Students</button>
+                    </nav>
+                </div>
             </div>
             <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </header>
@@ -53,10 +58,8 @@
                     <i class="fas fa-filter"></i>
                     <select id="filterCourse">
                         <option value="">All Courses</option>
-                        <option value="CS101">💻 Computer Science 101</option>
-                        <option value="MATH201">📊 Mathematics 201</option>
-                        <option value="PHY301">⚛️ Physics 301</option>
-                        <option value="ENG101">📚 English 101</option>
+                        <option value="BCA">💻 BCA (Bachelor of Computer Applications)</option>
+                        <option value="BBA">💼 BBA (Bachelor of Business Administration)</option>
                     </select>
                 </div>
                 <div class="control-group">
@@ -69,6 +72,31 @@
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, push, get, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBJVqOs7xdiLBYkNiVmxfXeH363Hot4Cw",
+            authDomain: "smart-attendence0.firebaseapp.com",
+            databaseURL: "https://smart-attendence0-default-rtdb.firebaseio.com",
+            projectId: "smart-attendence0",
+            storageBucket: "smart-attendence0.firebasestorage.app",
+            messagingSenderId: "424874093065",
+            appId: "1:424874093065:web:b5caf7c52c8c2770f7a6d8"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+        window.firebasePush = push;
+        window.firebaseGet = get;
+        window.firebaseQuery = query;
+        window.firebaseOrderByChild = orderByChild;
+        window.firebaseEqualTo = equalTo;
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script src="script.js"></script>
