@@ -126,7 +126,7 @@ class StudentDashboard {
             const scanResult = document.getElementById('scanResult');
             scanResult.innerHTML = '';
 
-            this.html5QrCode = new Html5Qrcode("video");
+            this.html5QrCode = new Html5Qrcode("scanner-box");
             
             await this.html5QrCode.start(
                 { facingMode: "environment" },

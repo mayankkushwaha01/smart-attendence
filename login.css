@@ -76,15 +76,17 @@ body::before {
 }
 
 .login-box {
-    background: var(--container-bg);
-    backdrop-filter: blur(20px);
-    border-radius: 25px;
-    padding: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 30px;
+    padding: 50px;
     box-shadow: 
-        0 30px 80px rgba(0,0,0,0.4),
-        inset 0 1px 0 var(--border-color);
-    border: 2px solid var(--border-color);
-    min-height: 650px;
+        0 8px 32px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.2),
+        0 0 0 1px rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    min-height: 700px;
     position: relative;
     overflow: hidden;
     animation: boxFloat 6s ease-in-out infinite;
@@ -278,21 +280,26 @@ h1 {
 .input-group input, .input-group select {
     width: 100%;
     padding: 18px 18px 18px 60px;
-    border: 3px solid #e8ecf4;
+    border: 1px solid rgba(255,255,255,0.2);
     border-radius: 18px;
     font-size: 16px;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255,255,255,0.9);
-    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(20px);
     font-weight: 500;
+    color: white;
+}
+
+.input-group input::placeholder, .input-group select option {
+    color: rgba(255,255,255,0.7);
 }
 
 .input-group input:focus, .input-group select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: rgba(255,255,255,0.4);
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
-    background: white;
+    background: rgba(255,255,255,0.15);
 }
 
 .role-selection {
@@ -310,13 +317,15 @@ h1 {
     padding: 15px 25px;
     border-radius: 15px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(240, 147, 251, 0.1));
-    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.2);
     flex: 1;
     justify-content: center;
     font-weight: 600;
     position: relative;
     overflow: hidden;
+    color: white;
 }
 
 .role-selection label::before {
@@ -402,12 +411,14 @@ h1 {
 .demo-credentials {
     margin-top: 35px;
     padding: 25px;
-    background: var(--card-bg);
-    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
     text-align: center;
     font-size: 14px;
-    color: var(--text-color);
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     animation: credentialsPulse 4s ease-in-out infinite;
 }
 
