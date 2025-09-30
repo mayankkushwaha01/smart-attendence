@@ -13,6 +13,7 @@ class LoginSystem {
         document.getElementById('registerForm').addEventListener('submit', (e) => this.handleRegister(e));
         document.getElementById('loginToggle').addEventListener('click', () => this.showForm('login'));
         document.getElementById('registerToggle').addEventListener('click', () => this.showForm('register'));
+
     }
 
     showForm(type) {
@@ -184,6 +185,8 @@ class LoginSystem {
         
         setTimeout(() => successDiv.remove(), 3000);
     }
+
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {

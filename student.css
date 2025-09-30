@@ -611,6 +611,10 @@ header h1 {
     background: linear-gradient(135deg, #f093fb, #f5576c);
 }
 
+.scan-btn.upload {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
 .scan-btn:hover {
     transform: translateY(-3px) scale(1.05);
     box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);

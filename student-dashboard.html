@@ -131,6 +131,8 @@
                 <div class="scanner-controls">
                     <button id="startScan" class="scan-btn"><i class="fas fa-play"></i> Start Scan</button>
                     <button id="stopScan" class="scan-btn stop"><i class="fas fa-stop"></i> Stop Scan</button>
+                    <input type="file" id="qrUpload" accept="image/*" style="display: none;">
+                    <button id="uploadBtn" class="scan-btn upload"><i class="fas fa-upload"></i> Upload QR</button>
                 </div>
                 <div id="scanResult" class="scan-result"></div>
                 
@@ -144,6 +146,7 @@
                 </div>
             </div>
         </div>
+        <div id="temp-reader" style="display: none;"></div>
     </div>
 
     <script type="module">

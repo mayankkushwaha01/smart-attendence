@@ -22,6 +22,8 @@ class AttendanceSystem {
 
         // Export
         document.getElementById('exportBtn').addEventListener('click', () => this.exportToCSV());
+
+
     }
 
     showSection(section) {

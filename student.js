@@ -30,9 +30,15 @@ class StudentDashboard {
         // Manual entry
         document.getElementById('manualForm').addEventListener('submit', (e) => this.handleManualEntry(e));
         
+        // QR Upload
+        document.getElementById('uploadBtn').addEventListener('click', () => this.triggerUpload());
+        document.getElementById('qrUpload').addEventListener('change', (e) => this.handleQRUpload(e));
+        
         // Edit profile
         document.getElementById('editProfileForm').addEventListener('submit', (e) => this.saveProfile(e));
         document.getElementById('cancelEdit').addEventListener('click', () => this.showSection('profile'));
+        
+
     }
 
     showSection(section) {
@@ -168,6 +174,29 @@ class StudentDashboard {
         const classCode = document.getElementById('classCode').value;
         this.markAttendance(classCode);
         document.getElementById('classCode').value = '';
+    }
+
+    triggerUpload() {
+        document.getElementById('qrUpload').click();
+    }
+
+    async handleQRUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            const html5QrCode = new Html5Qrcode("temp-reader");
+            const qrCodeResult = await html5QrCode.scanFile(file, true);
+            
+            this.handleScanResult(qrCodeResult);
+            this.showScanResult('QR code uploaded and processed successfully!', 'success');
+        } catch (error) {
+            console.error('QR upload error:', error);
+            this.showScanResult('Failed to read QR code from image. Please try again.', 'error');
+        }
+        
+        // Clear the file input
+        e.target.value = '';
     }
 
     markAttendance(classCode) {
