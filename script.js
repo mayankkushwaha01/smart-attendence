@@ -78,41 +78,77 @@ class AttendanceSystem {
     displayAttendance() {
         const filterCourse = document.getElementById('filterCourse').value;
         const filterDate = document.getElementById('filterDate').value;
-        const attendanceList = document.getElementById('attendanceList');
+        const subjectsGrid = document.getElementById('subjectsGrid');
 
         let filteredData = this.attendanceData;
 
-        // Apply filters
-        if (filterCourse) {
-            filteredData = filteredData.filter(record => record.course === filterCourse);
-        }
-
+        // Apply date filter
         if (filterDate) {
             filteredData = filteredData.filter(record => 
                 new Date(record.timestamp).toDateString() === new Date(filterDate).toDateString()
             );
         }
 
-        // Sort by timestamp (newest first)
-        filteredData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        // Group by subject
+        const subjectGroups = {};
+        filteredData.forEach(record => {
+            if (!subjectGroups[record.course]) {
+                subjectGroups[record.course] = [];
+            }
+            subjectGroups[record.course].push(record);
+        });
 
-        if (filteredData.length === 0) {
-            attendanceList.innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 50px;">No attendance records found.</p>';
+        // Filter by course if selected
+        if (filterCourse) {
+            const filtered = {};
+            if (subjectGroups[filterCourse]) {
+                filtered[filterCourse] = subjectGroups[filterCourse];
+            }
+            Object.assign(subjectGroups, {}, filtered);
+        }
+
+        // Sort students within each subject by timestamp
+        Object.keys(subjectGroups).forEach(subject => {
+            subjectGroups[subject].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        });
+
+        if (Object.keys(subjectGroups).length === 0) {
+            subjectsGrid.innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 50px; grid-column: 1 / -1;">No attendance records found.</p>';
             return;
         }
 
-        attendanceList.innerHTML = filteredData.map(record => {
-            const date = new Date(record.timestamp);
+        subjectsGrid.innerHTML = Object.keys(subjectGroups).map(subject => {
+            const students = subjectGroups[subject];
             return `
-                <div class="attendance-record">
-                    <div class="record-info">
-                        <h4><i class="fas fa-user"></i> ${record.studentName}</h4>
-                        <p><i class="fas fa-id-card"></i> ID: ${record.studentId}</p>
-                        <p><i class="fas fa-book"></i> ${this.getCourseFullName(record.course)}</p>
-                        <p><i class="fas fa-calendar"></i> ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}</p>
+                <div class="subject-column">
+                    <div class="subject-header">
+                        <h3>${this.getCourseFullName(subject)}</h3>
+                        <div class="student-count">${students.length} student${students.length !== 1 ? 's' : ''} present</div>
                     </div>
-                    <div class="record-status">
-                        <span class="status-badge">Present</span>
+                    <div class="student-list">
+                        ${students.length > 0 ? students.map(student => {
+                            const date = new Date(student.timestamp);
+                            return `
+                                <div class="student-item">
+                                    <div class="student-name">
+                                        <i class="fas fa-user"></i> ${student.studentName}
+                                    </div>
+                                    <div class="student-details">
+                                        <span><i class="fas fa-id-card"></i> ${student.studentId}</span>
+                                        <span class="attendance-time">${date.toLocaleTimeString()}</span>
+                                    </div>
+                                    ${student.location && !student.location.error ? `
+                                        <div class="student-location">
+                                            <i class="fas fa-map-marker-alt"></i> 
+                                            <span class="location-coords">${student.location.latitude}, ${student.location.longitude}</span>
+                                            <button class="view-map-btn" onclick="window.open('https://maps.google.com/?q=${student.location.latitude},${student.location.longitude}', '_blank')">
+                                                <i class="fas fa-external-link-alt"></i> View Map
+                                            </button>
+                                        </div>
+                                    ` : '<div class="student-location"><i class="fas fa-map-marker-alt"></i> Location not available</div>'}
+                                </div>
+                            `;
+                        }).join('') : '<div class="no-students">No students present</div>'}
                     </div>
                 </div>
             `;
@@ -181,32 +217,43 @@ class AttendanceSystem {
 
     async saveData() {
         try {
-            if (window.firebaseDB) {
+            if (window.firebaseDB && window.firebaseSet) {
                 const attendanceRef = window.firebaseRef(window.firebaseDB, 'attendance');
-                await window.firebaseSet(attendanceRef, this.attendanceData);
+                // Convert array to object for Firebase
+                const dataObject = {};
+                this.attendanceData.forEach((record, index) => {
+                    dataObject[record.id || index] = record;
+                });
+                await window.firebaseSet(attendanceRef, dataObject);
+                console.log('Teacher saved attendance to Firebase successfully');
             }
         } catch (error) {
-            console.log('Firebase save failed, using localStorage:', error);
+            console.error('Teacher Firebase save failed:', error);
         }
         localStorage.setItem('attendanceData', JSON.stringify(this.attendanceData));
     }
 
     async loadAttendanceData() {
         try {
-            if (window.firebaseDB) {
+            if (window.firebaseDB && window.firebaseGet) {
                 const attendanceRef = window.firebaseRef(window.firebaseDB, 'attendance');
                 const snapshot = await window.firebaseGet(attendanceRef);
                 const firebaseData = snapshot.val();
-                if (firebaseData && Array.isArray(firebaseData)) {
-                    this.attendanceData = firebaseData;
+                
+                if (firebaseData) {
+                    // Convert Firebase object to array
+                    this.attendanceData = Object.values(firebaseData);
+                    console.log('Teacher loaded attendance from Firebase:', this.attendanceData.length, 'records');
                 } else {
                     this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+                    console.log('No Firebase data, teacher loaded from localStorage:', this.attendanceData.length, 'records');
                 }
             } else {
                 this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+                console.log('Firebase not available for teacher, using localStorage only');
             }
         } catch (error) {
-            console.log('Firebase load failed, using localStorage:', error);
+            console.error('Teacher Firebase load failed:', error);
             this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
         }
         this.displayAttendance();

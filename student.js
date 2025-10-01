@@ -199,7 +199,17 @@ class StudentDashboard {
         e.target.value = '';
     }
 
-    markAttendance(classCode) {
+    async markAttendance(classCode) {
+        // Get device fingerprint and location
+        const deviceInfo = await this.getDeviceFingerprint();
+        const location = await this.getCurrentLocation();
+        
+        // Check for suspicious activity
+        if (await this.detectProxyAttendance(deviceInfo, location)) {
+            this.showScanResult('Suspicious activity detected! Contact administrator.', 'error');
+            return;
+        }
+
         // Validate class code format (e.g., COURSE-2024-01-15-timestamp)
         const codeParts = classCode.split('-');
         if (codeParts.length < 4) {
@@ -247,14 +257,17 @@ class StudentDashboard {
             return;
         }
 
-        // Mark attendance
+        // Mark attendance with security info
         const attendanceRecord = {
             id: Date.now(),
             studentId: this.currentUser.id,
             studentName: this.currentUser.name,
             course: course,
             timestamp: new Date().toISOString(),
-            status: 'Present'
+            status: 'Present',
+            deviceFingerprint: deviceInfo,
+            location: location,
+            ipAddress: await this.getIPAddress()
         };
 
         this.attendanceData.push(attendanceRecord);
@@ -356,35 +369,120 @@ class StudentDashboard {
 
     async saveAttendanceData() {
         try {
-            if (window.firebaseDB) {
+            if (window.firebaseDB && window.firebasePush) {
+                // Save individual record to Firebase
+                const latestRecord = this.attendanceData[this.attendanceData.length - 1];
                 const attendanceRef = window.firebaseRef(window.firebaseDB, 'attendance');
-                await window.firebaseSet(attendanceRef, this.attendanceData);
+                await window.firebasePush(attendanceRef, latestRecord);
+                console.log('Attendance saved to Firebase successfully');
+            } else {
+                console.log('Firebase not available, using localStorage only');
             }
         } catch (error) {
-            console.log('Firebase save failed, using localStorage:', error);
+            console.error('Firebase save failed:', error);
         }
         localStorage.setItem('attendanceData', JSON.stringify(this.attendanceData));
     }
 
     async loadAttendanceData() {
         try {
-            if (window.firebaseDB) {
+            if (window.firebaseDB && window.firebaseGet) {
                 const attendanceRef = window.firebaseRef(window.firebaseDB, 'attendance');
                 const snapshot = await window.firebaseGet(attendanceRef);
                 const firebaseData = snapshot.val();
-                if (firebaseData && Array.isArray(firebaseData)) {
-                    this.attendanceData = firebaseData;
+                
+                if (firebaseData) {
+                    // Convert Firebase object to array
+                    this.attendanceData = Object.values(firebaseData);
+                    console.log('Loaded attendance from Firebase:', this.attendanceData.length, 'records');
                 } else {
                     this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+                    console.log('No Firebase data, loaded from localStorage:', this.attendanceData.length, 'records');
                 }
             } else {
                 this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
+                console.log('Firebase not available, using localStorage only');
             }
         } catch (error) {
-            console.log('Firebase load failed, using localStorage:', error);
+            console.error('Firebase load failed:', error);
             this.attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || [];
         }
         this.calculateAttendance();
+    }
+
+    async getDeviceFingerprint() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('Device fingerprint', 2, 2);
+        
+        return {
+            screen: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            language: navigator.language,
+            platform: navigator.platform,
+            userAgent: navigator.userAgent.substring(0, 100),
+            canvas: canvas.toDataURL().substring(0, 50)
+        };
+    }
+
+    async getCurrentLocation() {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) {
+                resolve({ error: 'Geolocation not supported' });
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude.toFixed(6),
+                        longitude: position.coords.longitude.toFixed(6),
+                        accuracy: position.coords.accuracy
+                    });
+                },
+                () => resolve({ error: 'Location access denied' }),
+                { timeout: 5000, maximumAge: 300000 }
+            );
+        });
+    }
+
+    async getIPAddress() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch {
+            return 'unknown';
+        }
+    }
+
+    async detectProxyAttendance(deviceInfo, location) {
+        try {
+            // Check recent attendance from same device/location
+            const recentAttendance = this.attendanceData.filter(record => {
+                const recordTime = new Date(record.timestamp);
+                const timeDiff = (new Date() - recordTime) / 1000 / 60; // minutes
+                return timeDiff < 10 && record.deviceFingerprint;
+            });
+
+            // Flag if same device used for multiple students recently
+            const deviceMatches = recentAttendance.filter(record => 
+                record.deviceFingerprint.canvas === deviceInfo.canvas &&
+                record.deviceFingerprint.screen === deviceInfo.screen &&
+                record.studentId !== this.currentUser.id
+            );
+
+            if (deviceMatches.length > 0) {
+                console.warn('Proxy attendance detected:', deviceMatches);
+                return true;
+            }
+
+            return false;
+        } catch {
+            return false;
+        }
     }
 
     logout() {

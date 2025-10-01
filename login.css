@@ -22,16 +22,22 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: var(--bg-gradient);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #667eea 100%);
+    background-size: 400% 400%;
     background-attachment: fixed;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: backgroundShift 10s ease-in-out infinite alternate;
+    animation: gradientShift 8s ease-in-out infinite;
     overflow-x: hidden;
     overflow-y: auto;
-    transition: all 0.3s ease;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 @keyframes backgroundShift {
@@ -76,20 +82,34 @@ body::before {
 }
 
 .login-box {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
     border-radius: 30px;
     padding: 50px;
     box-shadow: 
-        0 8px 32px rgba(0,0,0,0.3),
-        inset 0 1px 0 rgba(255,255,255,0.2),
-        0 0 0 1px rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
+        0 20px 60px rgba(102,126,234,0.3),
+        0 0 0 1px rgba(255,255,255,0.8),
+        inset 0 1px 0 rgba(255,255,255,1);
+    border: 3px solid transparent;
+    background-clip: padding-box;
     min-height: 700px;
     position: relative;
     overflow: hidden;
     animation: boxFloat 6s ease-in-out infinite;
+}
+
+.login-box::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c, #667eea);
+    border-radius: 33px;
+    z-index: -1;
+    animation: borderGlow 3s linear infinite;
+}
+
+@keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
 }
 
 .college-image {
@@ -280,26 +300,26 @@ h1 {
 .input-group input, .input-group select {
     width: 100%;
     padding: 18px 18px 18px 60px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 18px;
+    border: 3px solid #e8ecf4;
+    border-radius: 20px;
     font-size: 16px;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(20px);
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
     font-weight: 500;
-    color: white;
+    color: #2c3e50;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.input-group input::placeholder, .input-group select option {
-    color: rgba(255,255,255,0.7);
+.input-group input::placeholder {
+    color: #7f8c8d;
 }
 
 .input-group input:focus, .input-group select:focus {
     outline: none;
-    border-color: rgba(255,255,255,0.4);
+    border-color: #667eea;
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
-    background: rgba(255,255,255,0.15);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4), inset 0 2px 4px rgba(102, 126, 234, 0.1);
+    background: linear-gradient(145deg, #ffffff, #f0f4ff);
 }
 
 .role-selection {
@@ -315,17 +335,17 @@ h1 {
     gap: 10px;
     cursor: pointer;
     padding: 15px 25px;
-    border-radius: 15px;
+    border-radius: 18px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border: 3px solid #dee2e6;
     flex: 1;
     justify-content: center;
     font-weight: 600;
     position: relative;
     overflow: hidden;
-    color: white;
+    color: #495057;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .role-selection label::before {
@@ -374,10 +394,11 @@ h1 {
 .auth-form button {
     width: 100%;
     padding: 20px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    background-size: 200% 200%;
     color: white;
     border: none;
-    border-radius: 18px;
+    border-radius: 25px;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
@@ -385,7 +406,13 @@ h1 {
     margin-top: 15px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    animation: buttonGlow 3s ease-in-out infinite;
+}
+
+@keyframes buttonGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
 }
 
 .auth-form button::before {
@@ -411,14 +438,13 @@ h1 {
 .demo-credentials {
     margin-top: 35px;
     padding: 25px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
+    background: linear-gradient(145deg, #fff3cd, #ffeaa7);
     border-radius: 20px;
     text-align: center;
     font-size: 14px;
-    color: white;
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    color: #856404;
+    border: 3px solid #ffd93d;
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
     animation: credentialsPulse 4s ease-in-out infinite;
 }
 
